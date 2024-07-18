@@ -32,34 +32,36 @@ int strcmp_k(char *first_string, char *second_string)
     return flag;
 }
 
-void set_path(char *str, int *ptr)
+int set_path(char *str)
 {
 
     if (strcmp_k(str, FLAG_PATH) == 1)
     {
-        printf("%s\n", str);
+        return 1;
     }
+    return 0;
 }
 
 int main(int argc, char *argv[])
 {
-
-    int bytes = 200 * 8;
-    int *ptr_bytes;
-
-    ptr_bytes = (int *)malloc(bytes * sizeof(char));
-
-    if (ptr_bytes == NULL)
-    {
-        exit(0);
-    }
-    printf("size allocated: %d bytes\n", bytes * sizeof(char));
-    printf("max characters to allocate: %d characters\n", ((bytes * sizeof(char)) / 8));
+    char *ptr_bytes;
 
     for (int i = 0; i < argc; i++)
     {
-        set_path(argv[i], ptr_bytes);
+        if (set_path(argv[i]) == 1)
+        {
+            int size_str = strlen_k(argv[i + 1]) + 1;
+            ptr_bytes = (char *)malloc(size_str * sizeof(char));
+            if (ptr_bytes == NULL)
+            {
+                exit(1);
+            }
+            ptr_bytes = argv[i + 1];
+            break;
+        };
     };
+
+    printf("%s\n", ptr_bytes);
 
     free(ptr_bytes);
     ptr_bytes = NULL;
