@@ -1,32 +1,47 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// int strcmp_s(char *first_string, char second_string)
-// {
-//     printf(first_string);
-//     printf(second_string);
-//     return 1;
-// }
+#define FLAG_PATH "--path"
 
-void set_path(const char *str, int *ptr)
+int strlen_k(char *str)
 {
-    char path[6];
-    path[0] = "-";
-    path[1] = "-";
-    path[2] = "p";
-    path[3] = "a";
-    path[4] = "t";
-    path[5] = "h";
-
-    printf("pointer: %s\n", path);
-    // printf("%s\n", str);
-    // if (strcmp_s(str, '--path') != 0)
-    // {
-    //     printf("equal");
-    // }
+    if (*str == '\0')
+        return 0;
+    else
+        return 1 + strlen_k(str + 1);
 }
 
-int main(int argc, char const *argv[])
+int strcmp_k(char *first_string, char *second_string)
+{
+    int flag = 1;
+    while (*first_string != '\0' || *second_string != '\0')
+    {
+        if (*first_string == *second_string)
+        {
+
+            first_string++;
+            second_string++;
+        }
+        else if ((*first_string == '\0' && *second_string != '\0') || (*first_string != '\0' && *second_string == '\0') || *first_string != *second_string)
+        {
+            flag = 0;
+            break;
+        }
+    }
+
+    return flag;
+}
+
+void set_path(char *str, int *ptr)
+{
+
+    if (strcmp_k(str, FLAG_PATH) == 1)
+    {
+        printf("%s\n", str);
+    }
+}
+
+int main(int argc, char *argv[])
 {
 
     int bytes = 200 * 8;
@@ -38,14 +53,12 @@ int main(int argc, char const *argv[])
     {
         exit(0);
     }
-    // printf("pointer: %d\n", ptr_bytes);
-    printf("size aloccated: %d bytes\n", bytes * sizeof(char));
+    printf("size allocated: %d bytes\n", bytes * sizeof(char));
     printf("max characters to allocate: %d characters\n", ((bytes * sizeof(char)) / 8));
 
     for (int i = 0; i < argc; i++)
     {
         set_path(argv[i], ptr_bytes);
-        // printf("%s\n", argv[i]);
     };
 
     free(ptr_bytes);
