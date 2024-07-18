@@ -44,7 +44,7 @@ int set_path(char *str)
 
 int main(int argc, char *argv[])
 {
-    char *ptr_bytes;
+    char *ptr_bytes = NULL;
 
     for (int i = 0; i < argc; i++)
     {
@@ -56,7 +56,10 @@ int main(int argc, char *argv[])
             {
                 exit(1);
             }
-            ptr_bytes = argv[i + 1];
+            for (int j = 0; j < size_str; j++)
+            {
+                ptr_bytes[j] = argv[i + 1][j];
+            }
             break;
         };
     };
