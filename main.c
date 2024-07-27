@@ -42,6 +42,30 @@ int set_path(char *str)
     return 0;
 }
 
+int get_pos_last_bar(char *str)
+{
+    int total_bars = 0;
+    int count_bars = 0;
+    for (int i = 0; i < strlen_k(str); i++)
+    {
+        if (str[i] == '\\')
+        {
+            total_bars++;
+        }
+    }
+    for (int i = 0; i < strlen_k(str); i++)
+    {
+        if (str[i] == '\\')
+        {
+            count_bars++;
+            if (count_bars == total_bars)
+            {
+                return i;
+            }
+        }
+    }
+}
+
 int main(int argc, char *argv[])
 {
     char *ptr_bytes = NULL;
@@ -63,12 +87,39 @@ int main(int argc, char *argv[])
             break;
         };
     };
+    int post_last_bar = get_pos_last_bar(argv[0]);
+    argv[0][post_last_bar + 1] = '\0';
+    int i = post_last_bar + 1;
+    int j = 0;
+    int first_point = 0;
+    int first_bar = 0;
 
-    printf("%s\n", ptr_bytes);
+    while (ptr_bytes[j] != '\0' && i < strlen_k(argv[0]) + strlen_k(ptr_bytes))
+    {
+        if (ptr_bytes[j] == '.' && !first_point)
+        {
+            j++;
+            first_point = 1;
+            continue;
+        }
+        if (ptr_bytes[j] == '\\' && !first_bar)
+        {
+            j++;
+            first_bar = 1;
+            continue;
+        }
+        argv[0][i] = ptr_bytes[j];
+        i++;
+        j++;
+    }
+    argv[0][i] = '\0';
+
+    printf("%s", argv[0]);
 
     free(ptr_bytes);
     ptr_bytes = NULL;
     return 0;
 }
 
-// gcc -o test .\main.c
+// gcc -o compilation-test .\main.c
+//.\compilation-test.exe --path .\main.c
