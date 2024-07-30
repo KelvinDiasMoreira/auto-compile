@@ -66,8 +66,34 @@ int get_pos_last_bar(char *str)
     }
 }
 
+void concat_strings(char *str1, char *str2)
+{
+
+    while (*str1)
+    {
+        str1++;
+    }
+    while (*str2)
+    {
+        *str1++ = *str2++;
+    }
+    *str1 = '\0';
+}
+
 int main(int argc, char *argv[])
 {
+    if (argc < 2)
+    {
+        printf("Usage --path <path>");
+        exit(1);
+    }
+
+    char file_name[50];
+    printf("Enter the name of the output: ");
+    scanf("%s", file_name);
+
+    concat_strings(file_name, " ");
+
     char *ptr_bytes = NULL;
 
     for (int i = 0; i < argc; i++)
@@ -114,7 +140,12 @@ int main(int argc, char *argv[])
     }
     argv[0][i] = '\0';
 
-    printf("%s", argv[0]);
+    char comand[] = "gcc -o ";
+
+    concat_strings(comand, file_name);
+    concat_strings(comand, argv[0]);
+
+    system(comand);
 
     free(ptr_bytes);
     ptr_bytes = NULL;
