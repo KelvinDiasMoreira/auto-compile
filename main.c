@@ -113,39 +113,52 @@ int main(int argc, char *argv[])
             break;
         };
     };
-    int post_last_bar = get_pos_last_bar(argv[0]);
-    argv[0][post_last_bar + 1] = '\0';
-    int i = post_last_bar + 1;
-    int j = 0;
-    int first_point = 0;
-    int first_bar = 0;
 
-    while (ptr_bytes[j] != '\0' && i < strlen_k(argv[0]) + strlen_k(ptr_bytes))
+    for (int i = 0; i < strlen_k(ptr_bytes); i++)
     {
-        if (ptr_bytes[j] == '.' && !first_point)
+        if (i == 0 && ptr_bytes[i] == '.' && ptr_bytes[i + 1] == '\\')
         {
-            j++;
-            first_point = 1;
-            continue;
+            int post_last_bar = get_pos_last_bar(argv[0]);
+            argv[0][post_last_bar + 1] = '\0';
+            int i = post_last_bar + 1;
+            int j = 0;
+            int first_point = 0;
+            int first_bar = 0;
+
+            while (ptr_bytes[j] != '\0' && i < strlen_k(argv[0]) + strlen_k(ptr_bytes))
+            {
+                if (ptr_bytes[j] == '.' && !first_point)
+                {
+                    j++;
+                    first_point = 1;
+                    continue;
+                }
+                if (ptr_bytes[j] == '\\' && !first_bar)
+                {
+                    j++;
+                    first_bar = 1;
+                    continue;
+                }
+                argv[0][i] = ptr_bytes[j];
+                i++;
+                j++;
+            }
+            argv[0][i] = '\0';
+
+            char comand[] = "gcc -o ";
+
+            concat_strings(comand, file_name);
+            concat_strings(comand, argv[0]);
+
+            system(comand);
+            break;
         }
-        if (ptr_bytes[j] == '\\' && !first_bar)
+        else
         {
-            j++;
-            first_bar = 1;
-            continue;
+            printf("not implemented");
+            exit(1);
         }
-        argv[0][i] = ptr_bytes[j];
-        i++;
-        j++;
     }
-    argv[0][i] = '\0';
-
-    char comand[] = "gcc -o ";
-
-    concat_strings(comand, file_name);
-    concat_strings(comand, argv[0]);
-
-    system(comand);
 
     free(ptr_bytes);
     ptr_bytes = NULL;
