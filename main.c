@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <direct.h>
+#include <errno.h>
 
 #define FLAG_PATH "--path"
 
@@ -85,14 +87,8 @@ int main(int argc, char *argv[])
     if (argc < 2)
     {
         printf("Usage --path <path>");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
-
-    char file_name[50];
-    printf("Enter the name of the output: ");
-    scanf("%s", file_name);
-
-    concat_strings(file_name, " ");
 
     char *ptr_bytes = NULL;
 
@@ -104,7 +100,7 @@ int main(int argc, char *argv[])
             ptr_bytes = (char *)malloc(size_str * sizeof(char));
             if (ptr_bytes == NULL)
             {
-                exit(1);
+                exit(EXIT_FAILURE);
             }
             for (int j = 0; j < size_str; j++)
             {
@@ -118,6 +114,13 @@ int main(int argc, char *argv[])
     {
         if (i == 0 && ptr_bytes[i] == '.' && ptr_bytes[i + 1] == '\\')
         {
+            char comand[] = "gcc -o ";
+            char file_name[50];
+            printf("Enter the name of the output: ");
+            scanf("%s", file_name);
+
+            concat_strings(file_name, " ");
+
             int post_last_bar = get_pos_last_bar(argv[0]);
             argv[0][post_last_bar + 1] = '\0';
             int i = post_last_bar + 1;
@@ -145,18 +148,91 @@ int main(int argc, char *argv[])
             }
             argv[0][i] = '\0';
 
-            char comand[] = "gcc -o ";
-
             concat_strings(comand, file_name);
             concat_strings(comand, argv[0]);
 
             system(comand);
             break;
         }
-        else
+        else if (i == 0 && ptr_bytes[i] == 'C' && ptr_bytes[i + 1] == ':' && ptr_bytes[i + 2] == '\\')
         {
-            printf("not implemented");
-            exit(1);
+
+            char *comand_ptr = NULL;
+            char comand[] = "gcc -o ";
+            comand_ptr = (char *)malloc(200);
+            if (comand_ptr == NULL)
+            {
+                exit(EXIT_FAILURE);
+            }
+
+            for (int i = 0; i < strlen_k(comand); i++)
+            {
+                comand_ptr[i] = comand[i];
+            }
+
+            char file_name[50];
+            printf("Enter the name of the output: ");
+            scanf("%s", file_name);
+
+            concat_strings(comand_ptr, file_name);
+            concat_strings(comand_ptr, " ");
+            concat_strings(comand_ptr, ptr_bytes);
+
+            int pos_last_bar = get_pos_last_bar(argv[0]);
+
+            argv[0][pos_last_bar + 1] = '\0';
+            concat_strings(argv[0], "output");
+
+            int mkdir_response = _mkdir(argv[0]);
+            if (mkdir_response == -1)
+            {
+                if (errno == 17)
+                {
+                    char second_comand[] = "move ";
+                    int result;
+                    int pos_last_bar = get_pos_last_bar(ptr_bytes);
+                    ptr_bytes[pos_last_bar + 1] = '\0';
+                    concat_strings(ptr_bytes, file_name);
+                    concat_strings(ptr_bytes, ".exe");
+
+                    result = system(comand_ptr);
+
+                    if (result == 0)
+                    {
+                        concat_strings(second_comand, ptr_bytes);
+                        concat_strings(second_comand, " ");
+                        concat_strings(second_comand, argv[0]);
+                        system(second_comand);
+                    }
+                }
+                else
+                {
+                    exit(1);
+                }
+            }
+            else
+            {
+                char second_comand[] = "move ";
+                int result;
+                int pos_last_bar = get_pos_last_bar(ptr_bytes);
+                ptr_bytes[pos_last_bar + 1] = '\0';
+                concat_strings(ptr_bytes, file_name);
+                concat_strings(ptr_bytes, ".exe");
+
+                result = system(comand_ptr);
+
+                if (result == 0)
+                {
+                    concat_strings(second_comand, ptr_bytes);
+                    concat_strings(second_comand, " ");
+                    concat_strings(second_comand, argv[0]);
+                    system(second_comand);
+                }
+            }
+
+            free(comand_ptr);
+            comand_ptr = NULL;
+            break;
         }
     }
 
@@ -164,6 +240,3 @@ int main(int argc, char *argv[])
     ptr_bytes = NULL;
     return 0;
 }
-
-// gcc -o compilation-test .\main.c
-//.\compilation-test.exe --path .\main.c
