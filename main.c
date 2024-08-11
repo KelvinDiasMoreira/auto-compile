@@ -114,44 +114,81 @@ int main(int argc, char *argv[])
     {
         if (i == 0 && ptr_bytes[i] == '.' && ptr_bytes[i + 1] == '\\')
         {
+            char *comand_ptr = NULL;
+            comand_ptr = (char *)malloc(200);
+            if (comand_ptr == NULL)
+            {
+                exit(EXIT_FAILURE);
+            }
+
             char comand[] = "gcc -o ";
+
+            for (int i = 0; i < strlen_k(comand); i++)
+            {
+                comand_ptr[i] = comand[i];
+            }
+
             char file_name[50];
             printf("Enter the name of the output: ");
             scanf("%s", file_name);
 
-            concat_strings(file_name, " ");
+            concat_strings(comand_ptr, file_name);
+            concat_strings(comand_ptr, " ");
+            concat_strings(comand_ptr, ptr_bytes);
 
             int post_last_bar = get_pos_last_bar(argv[0]);
             argv[0][post_last_bar + 1] = '\0';
-            int i = post_last_bar + 1;
-            int j = 0;
-            int first_point = 0;
-            int first_bar = 0;
 
-            while (ptr_bytes[j] != '\0' && i < strlen_k(argv[0]) + strlen_k(ptr_bytes))
+            concat_strings(argv[0], "output");
+            int mkdir_response = _mkdir(argv[0]);
+            if (mkdir_response == -1)
             {
-                if (ptr_bytes[j] == '.' && !first_point)
+                //  errno 17 - FILE EXISTS
+                if (errno == 17)
                 {
-                    j++;
-                    first_point = 1;
-                    continue;
+                    char second_comand[] = "move ";
+                    int result;
+                    int pos_last_bar = get_pos_last_bar(ptr_bytes);
+                    ptr_bytes[pos_last_bar + 1] = '\0';
+                    concat_strings(ptr_bytes, file_name);
+                    concat_strings(ptr_bytes, ".exe");
+
+                    result = system(comand_ptr);
+
+                    if (result == 0)
+                    {
+                        concat_strings(second_comand, ptr_bytes);
+                        concat_strings(second_comand, " ");
+                        concat_strings(second_comand, argv[0]);
+                        system(second_comand);
+                    }
                 }
-                if (ptr_bytes[j] == '\\' && !first_bar)
+                else
                 {
-                    j++;
-                    first_bar = 1;
-                    continue;
+                    exit(1);
                 }
-                argv[0][i] = ptr_bytes[j];
-                i++;
-                j++;
             }
-            argv[0][i] = '\0';
+            else
+            {
+                char second_comand[] = "move ";
+                int result;
+                int pos_last_bar = get_pos_last_bar(ptr_bytes);
+                ptr_bytes[pos_last_bar + 1] = '\0';
+                concat_strings(ptr_bytes, file_name);
+                concat_strings(ptr_bytes, ".exe");
 
-            concat_strings(comand, file_name);
-            concat_strings(comand, argv[0]);
+                result = system(comand_ptr);
 
-            system(comand);
+                if (result == 0)
+                {
+                    concat_strings(second_comand, ptr_bytes);
+                    concat_strings(second_comand, " ");
+                    concat_strings(second_comand, argv[0]);
+                    system(second_comand);
+                }
+            }
+            free(comand_ptr);
+            comand_ptr = NULL;
             break;
         }
         else if (i == 0 && ptr_bytes[i] == 'C' && ptr_bytes[i + 1] == ':' && ptr_bytes[i + 2] == '\\')
@@ -186,6 +223,7 @@ int main(int argc, char *argv[])
             int mkdir_response = _mkdir(argv[0]);
             if (mkdir_response == -1)
             {
+                //  errno 17 - FILE EXISTS
                 if (errno == 17)
                 {
                     char second_comand[] = "move ";
